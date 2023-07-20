@@ -35,44 +35,52 @@ async function update() {
   } = await axios.get(
     `https://restapi.amap.com/v3/weather/weatherInfo?city=${city}&key=${key}&extensions=all`
   );
-  const {
-    data: { content },
-  } = await axios({
-    method: "get",
-    url: "https://api.uomg.com/api/rand.qinghua",
-  });
 
-  let lovedate = parseInt((new Date().getTime() - new Date(first_date).getTime()) / 1000 / 60 / 60 / 24);
-  sendData.data = {
-    nowDate: {
-      value: forecasts[0].casts[0].date + " 星期" + format(forecasts[0].casts[0].week),
-      color: "#54D7FF",
-    },
-    city: {
-      value: forecasts[0].province + " " + forecasts[0].city,
-      color: "#FDF7C4",
-    },
-    weather: {
-      value: forecasts[0].casts[0].dayweather,
-      color: "#E5D225",
-    },
-    daytemp: {
-      value: forecasts[0].casts[0].daytemp + "°C",
-      color: "#2DEDD8",
-    },
-    nighttemp: {
-      value: forecasts[0].casts[0].nighttemp + "°C",
-      color: "#6E64BB",
-    },
-    loveDate: {
-      value: lovedate,
-      color: "#E75875",
-    },
-    text: {
-      value: content,
-      color: "#E07A70",
-    },
-  };
+  // 添加对 forecasts 和 forecasts[0].casts[0] 的合法性检查
+  if (forecasts && forecasts.length > 0 && forecasts[0].casts && forecasts[0].casts.length > 0) {
+    const forecast = forecasts[0].casts[0];
+    const {
+      data: { content },
+    } = await axios({
+      method: "get",
+      url: "https://api.uomg.com/api/rand.qinghua",
+    });
+
+    let lovedate = parseInt((new Date().getTime() - new Date(first_date).getTime()) / 1000 / 60 / 60 / 24);
+    sendData.data = {
+      nowDate: {
+        value: forecast.date + " 星期" + format(forecast.week),
+        color: "#54D7FF",
+      },
+      city: {
+        value: forecasts[0].province + " " + forecasts[0].city,
+        color: "#FDF7C4",
+      },
+      weather: {
+        value: forecast.dayweather,
+        color: "#E5D225",
+      },
+      daytemp: {
+        value: forecast.daytemp + "°C",
+        color: "#2DEDD8",
+      },
+      nighttemp: {
+        value: forecast.nighttemp + "°C",
+        color: "#6E64BB",
+      },
+      loveDate: {
+        value: lovedate,
+        color: "#E75875",
+      },
+      text: {
+        value: content,
+        color: "#E07A70",
+      },
+    };
+  } else {
+    // 天气数据可能未获取到，执行适当的错误处理
+    console.log("无法获取天气数据");
+  }
 }
 
 function format(e) {
